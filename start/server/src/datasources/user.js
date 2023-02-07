@@ -1,3 +1,5 @@
+// This is an extension of DataSource for a SQLite database
+
 const { DataSource } = require('apollo-datasource');
 const isEmail = require('isemail');
 
@@ -13,7 +15,10 @@ class UserAPI extends DataSource {
    * like caches and context. We'll assign this.context to the request context
    * here, so we can know about the user making requests
    */
+  // Implement this method if you want to pass any config options to your subclass
   initialize(config) {
+    // A graph API's context is an object that is shared across every resolver 
+    // in a GraphQL request
     this.context = config.context;
   }
 

@@ -41,11 +41,26 @@ const typeDefs = gql `
 
     type Query {
         # returns array of all upcoming launches
-        launches: [Launch]!
+        # Updated to implement pagination
+        launches(
+            pageSize: Int
+            after: String
+        ): LaunchConnection!
+
         # returns a single launch that corresponds to id
         launch(id: ID!): Launch
+
         # returns details for the User that is logged in
         me: User
+    }
+
+    # Wrapper around our list of launches that contains a cursor
+    # to the last item in the list. Pass the cursor to the 
+    # launches query to fetch results after these
+    type LaunchConnection {
+        cursor: String!
+        hasMore: Boolean!
+        launches: [Launch]!
     }
 
     # Mutations enable clients to modify data
