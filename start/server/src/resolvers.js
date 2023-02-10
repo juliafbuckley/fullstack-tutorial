@@ -36,6 +36,56 @@ module.exports = {
             dataSources.launchAPI.getLaunchById({ launchId: id }),
         me: (_, __, { dataSources }) => dataSources.userAPI.findOrCreateUser(),
     },
+
+    // Mutation resolvers
+    Mutation: {
+        // User login - takes an email address and returns the user data
+        login: async (_, { email }, { dataSources }) => {
+            const user = await dataSources.userAPI.findOrCreateUser({ email });
+            if (user) {
+                user.token = Buffer.from(email).toString('base64');
+                return user;
+            }
+        },
+
+        bookTrips: async(_, { launchIds }, { dataSources }) => {
+            const results = await dataSources.userAPI.bookTrips({ launchIds });
+            const launches = await dataSources.launchAPI.getLaunchesByIds({
+                launchIds,
+            });
+
+            return {
+                success: results && results.length === launchIds.length,
+                message:
+                    results.length === launchIds.length
+                        ? 'trips booked successfully!'
+                        : `the following launches couldn't be booked: ${launchIds.filter(
+                            id => !results.includes(id),
+                        )}`,
+                launches,
+            };
+        },
+
+        cancelTrip: async(_, { launchId }, { dataSources }) => {
+            // call the function
+            const result = await dataSources.userAPI.cancelTrip({ launchId });
+            
+            if (!result)
+                return {
+                    success: false,
+                    message: 'failed to cancel trip',
+                };
+            
+            const launch = await dataSources.launchAPI.getLaunchById({ launchId });
+            return {
+                success: true,
+                message: 'trip cancelled',
+                launches: [launch],
+            };
+        },
+    },
+
+
     // Parent is Launch.mission
     // Resolver gets a large or small patch from mission, which is the return object
     // from Launch.mission

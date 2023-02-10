@@ -3,7 +3,7 @@
 
 const { gql } = require("apollo-server");
 
-const typeDefs = gql `
+const typeDefs = gql`
     type Launch {
         # ! Means not null
         id: ID!
